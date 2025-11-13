@@ -619,6 +619,27 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ message: "Internal server error" });
 });
 
+const tryListen = (port, maxRetries = 5) =>
+  new Promise((resolve, reject) => {
+    const p = Number(port) || 3001;
+    const server = app.listen(p, () => {
+      resolve({ server, port: p });
+    });
+
+    server.on("error", (err) => {
+      if (err?.code === "EADDRINUSE" && maxRetries > 0) {
+        const nextPort = p + 1;
+        console.warn(`Port ${p} is in use, trying ${nextPort}...`);
+        // small delay before retrying
+        setTimeout(() => {
+          tryListen(nextPort, maxRetries - 1).then(resolve).catch(reject);
+        }, 300);
+      } else {
+        reject(err);
+      }
+    });
+  });
+
 const startServer = async () => {
   try {
     await query(bootstrapSql);
@@ -628,9 +649,28 @@ const startServer = async () => {
     process.exit(1);
   }
 
-  app.listen(PORT, () => {
-    console.log(`API server listening on http://localhost:${PORT}`);
-  });
+  try {
+    const { port: listenedPort } = await tryListen(process.env.PORT || PORT, 5);
+    console.log(`API server listening on http://localhost:${listenedPort}`);
+
+    // If Vite's dev client expects a specific API base URL, warn if mismatch
+    if (process.env.VITE_API_BASE_URL) {
+      try {
+        const desired = new URL(process.env.VITE_API_BASE_URL);
+        const desiredPort = Number(desired.port) || (desired.protocol === "https:" ? 443 : 80);
+        if (desired.hostname === "localhost" && desiredPort !== listenedPort) {
+          console.warn(
+            `Warning: VITE_API_BASE_URL is set to ${process.env.VITE_API_BASE_URL} but server is listening on port ${listenedPort}. Update VITE_API_BASE_URL or set PORT to ${listenedPort} when running dev.`,
+          );
+        }
+      } catch (e) {
+        // ignore malformed URL in env
+      }
+    }
+  } catch (err) {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  }
 };
 
 startServer();
