@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as LucideIcons from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 
 interface Skill {
@@ -83,8 +84,64 @@ const Skills = () => {
         </p>
 
         {loading ? (
-          <div className="text-center text-muted-foreground">Loading...</div>
-        ) : (
+  <div className="min-h-[300px] flex items-center justify-center relative">
+
+    {/* Main loading content */}
+    <div className="relative z-10 flex flex-col items-center gap-6">
+
+      {/* Animated logo/spinner */}
+      <div className="relative">
+
+        {/* Outer rotating ring */}
+        <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+
+        {/* Inner pulsing circle */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-primary/30 animate-pulse" />
+        </div>
+
+        {/* Center sparkle */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+        </div>
+
+        {/* Glow effect */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: 'radial-gradient(circle, hsl(var(--primary) / 0.4), transparent)',
+            filter: 'blur(20px)',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }}
+        />
+      </div>
+
+      {/* Loading text */}
+      <div className="text-center space-y-2">
+        <p className="text-xl font-semibold text-primary animate-pulse">
+          Loading
+          <span className="inline-block animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+          <span className="inline-block animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Just a moment
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-64 h-1 bg-secondary rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-primary rounded-full"
+          style={{
+            animation: 'loading-progress 2s ease-in-out infinite'
+          }}
+        />
+      </div>
+    </div>
+  </div>
+) : (
+
           <div className="space-y-12">
             {/* Hard Skills */}
             <div>

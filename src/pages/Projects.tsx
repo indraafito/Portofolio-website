@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Github, ExternalLink, Code } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { apiGet } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { Github, ExternalLink, Code, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { apiGet } from "@/lib/api";
 
 interface Project {
   id: string;
@@ -25,7 +25,7 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const data = await apiGet<Project[]>('/projects');
+      const data = await apiGet<Project[]>("/projects");
       setProjects(data);
     } catch (error) {
       console.error(error);
@@ -45,7 +45,65 @@ const Projects = () => {
         </p>
 
         {loading ? (
-          <div className="text-center text-muted-foreground">Loading...</div>
+          <div className="min-h-[300px] flex items-center justify-center relative">
+            <div className="relative z-10 flex flex-col items-center gap-6">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/30 animate-pulse" />
+                </div>
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-primary animate-pulse" />
+                </div>
+
+                <div
+                  className="absolute inset-0 rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle, hsl(var(--primary) / 0.4), transparent)",
+                    filter: "blur(20px)",
+                    animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                  }}
+                />
+              </div>
+
+              <div className="text-center space-y-2">
+                <p className="text-xl font-semibold text-primary animate-pulse">
+                  Loading
+                  <span
+                    className="inline-block animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  >
+                    .
+                  </span>
+                  <span
+                    className="inline-block animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  >
+                    .
+                  </span>
+                  <span
+                    className="inline-block animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  >
+                    .
+                  </span>
+                </p>
+                <p className="text-sm text-muted-foreground">Just a moment</p>
+              </div>
+
+              <div className="w-64 h-1 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-primary rounded-full"
+                  style={{
+                    animation: "loading-progress 2s ease-in-out infinite",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         ) : projects.length === 0 ? (
           <div className="text-center text-muted-foreground glass-card p-12 rounded-lg">
             <Code className="h-16 w-16 mx-auto mb-4 text-primary opacity-50" />
@@ -75,12 +133,18 @@ const Projects = () => {
 
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2">{project.title}</h3>
-                  <p className="text-muted-foreground mb-4">{project.description}</p>
+                  <p className="text-muted-foreground mb-4">
+                    {project.description}
+                  </p>
 
                   {project.technologies && project.technologies.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {project.technologies.map((tech, i) => (
-                        <Badge key={i} variant="secondary" className="border border-primary/30">
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="border border-primary/30"
+                        >
                           {tech}
                         </Badge>
                       ))}
@@ -95,12 +159,16 @@ const Projects = () => {
                         rel="noopener noreferrer"
                         className="flex-1"
                       >
-                        <Button variant="outline" className="w-full neon-border">
+                        <Button
+                          variant="outline"
+                          className="w-full neon-border"
+                        >
                           <Github className="mr-2 h-4 w-4" />
                           Code
                         </Button>
                       </a>
                     )}
+
                     {project.live_url && (
                       <a
                         href={project.live_url}
